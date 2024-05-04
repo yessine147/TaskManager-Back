@@ -32,9 +32,15 @@ public class TaskService {
     public Task updateTask(Long id, Task updatedTask) {
         Task existingTask = taskRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
-        existingTask.setTitle(updatedTask.getTitle());
-        existingTask.setDescription(updatedTask.getDescription());
-        existingTask.setCompleted(updatedTask.getCompleted());
+        if (updatedTask.getTitle() != null) {
+            existingTask.setTitle(updatedTask.getTitle());
+        }
+        if (updatedTask.getDescription() != null) {
+            existingTask.setDescription(updatedTask.getDescription());
+        }
+        if (updatedTask.getCompleted() != null) {
+            existingTask.setCompleted(updatedTask.getCompleted());
+        }
         return taskRepository.save(existingTask);
     }
 
