@@ -2,11 +2,11 @@ package com.backend.taskmanager.services;
 
 import com.backend.taskmanager.models.entities.Task;
 import com.backend.taskmanager.repositories.TaskRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import java.util.Optional;
 
 @Service
 public class TaskService {
@@ -26,26 +26,29 @@ public class TaskService {
         return taskRepository.findByTitleContaining(query, pageable);
     }
 
-    public Optional<Task> getTaskById(Long id) {
-        return taskRepository.findById(id);
+    public Task getTaskById(Long id) {
+        return taskRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Task with id " + id + " not found"));
     }
 
     public Task updateTask(Long id, Task updatedTask) {
-        Task existingTask = taskRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
-        if (updatedTask.getTitle() != null) {
-            existingTask.setTitle(updatedTask.getTitle());
+        if (!taskRepository.existsById(id)) {
+            throw new EntityNotFoundException("Task with id " + id + " not found");
         }
-        if (updatedTask.getDescription() != null) {
-            existingTask.setDescription(updatedTask.getDescription());
-        }
-        if (updatedTask.getCompleted() != null) {
-            existingTask.setCompleted(updatedTask.getCompleted());
-        }
-        return taskRepository.save(existingTask);
+        Task existingTask = getTaskById(id);
+
+        return taskRepository.save(Task.builder()
+                .id(existingTask.getId())
+                .title(updatedTask.getTitle() != null ? updatedTask.getTitle() : existingTask.getTitle())
+                .description(updatedTask.getDescription() != null ? updatedTask.getDescription() : existingTask.getDescription())
+                .completed(updatedTask.getCompleted() != null ? updatedTask.getCompleted() : existingTask.getCompleted())
+                .build());
     }
 
     public void deleteTask(Long id) {
+        if (!taskRepository.existsById(id)) {
+            throw new EntityNotFoundException("Task with id " + id + " not found");
+        }
         taskRepository.deleteById(id);
     }
 }
