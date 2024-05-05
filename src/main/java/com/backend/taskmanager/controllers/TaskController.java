@@ -3,11 +3,12 @@ package com.backend.taskmanager.controllers;
 import com.backend.taskmanager.models.entities.Task;
 import com.backend.taskmanager.services.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -28,9 +29,14 @@ public class TaskController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Task>> getAllTasks() {
-        List<Task> tasks = taskService.getAllTasks();
-        return new ResponseEntity<>(tasks, HttpStatus.OK);
+    public ResponseEntity<Page<Task>> getAllTasks(
+            @RequestParam(name = "page",defaultValue = "0") Integer page,
+            @RequestParam(name = "size",defaultValue = "2") Integer size,
+            @RequestParam(name = "query", defaultValue = "") String query )
+    {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Task> pageUser = taskService.searchTasksByQuery(query ,pageable);
+        return new ResponseEntity<>(pageUser, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
