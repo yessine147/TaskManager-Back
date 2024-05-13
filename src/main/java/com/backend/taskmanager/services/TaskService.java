@@ -23,7 +23,7 @@ public class TaskService {
     }
 
     public Page<Task> searchTasksByQuery(String query, Pageable pageable) {
-        return taskRepository.findByTitleContaining(query, pageable);
+        return taskRepository.findByTitleContainingIgnoreCase(query, pageable);
     }
 
     public Task getTaskById(Long id) {

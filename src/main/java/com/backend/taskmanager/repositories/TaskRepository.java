@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TaskRepository extends JpaRepository<Task, Long> {
 
-    Page<Task> findByTitleContaining(String query, Pageable pageable);
+    Page<Task> findByTitleContainingIgnoreCase(String query, Pageable pageable);
 }
